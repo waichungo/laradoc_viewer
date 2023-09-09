@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:laradoc_viewer/db/db.dart';
 
-void main() {
-  initializeDB();
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDB();
   runApp(const MyApp());
 }
 
@@ -41,16 +42,6 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -58,6 +49,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  int id = 13;
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -76,11 +68,37 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: SingleChildScrollView(
-        child: Text("Child"),
-      ),
+      body:FutureBuilder(
+            future: PageContent.getContent(id),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                if (snapshot.data != null) {
+                  return Markdown(data: snapshot.data!.data);
+                }
+                return Center(
+                  child: Text("Sorry data could not be loaded"),
+                );
+              } else if (snapshot.hasError) {
+                return Center(
+                  child: Text("Sorry an error occured while loading"),
+                );
+              }
+        
+              return Center(child: CircularProgressIndicator());
+            },
+          ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          int next = 0;
+          if (id > 90) {
+            next = 0;
+          } else {
+            next = id + 1;
+          }
+          setState(() {
+            id = next;
+          });
+        },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.

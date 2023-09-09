@@ -36,27 +36,39 @@ class PageContent {
   DateTime createdAt = DateTime.now();
   DateTime updatedAt = DateTime.now();
   static Future<PageContent?> getContent(int id) async {
-    PageContent? data;
-    var result = await ContentDB!.query('contents',limit: 1);
+    PageContent? content;
+    var result = await ContentDB!.query('contents', limit: 1,where: "id = ?",whereArgs: [id]);
 
-    if (result.isNotEmpty){
-        var entry=result[0];
-        if(entry["id"]!=null){
-            id=entry["id"] as int;
-        }
-        if(entry["created_at"]!=null){
-            var created=entry["created_at"] as String;
-        }
-        if(entry["created_at"]!=null){
-            var updated=entry["updated_at"] as String;
-        }
-        if(entry["data"]!=null){
-            var updated=entry["updated_at"] as String;
-        }
-
+    if (result.isNotEmpty) {
+      var entry = result[0];
+      content = PageContent();
+      if (entry["id"] != null) {
+        content.id = entry["id"] as int;
+      }
+      if (entry["created_at"] != null) {
+        var created = entry["created_at"] as String;
+      }
+      if (entry["created_at"] != null) {
+        var updated = entry["updated_at"] as String;
+      }
+      if (entry["data"] != null) {
+        content.data = entry["data"] as String;
+      }
+      if (entry["link"] != null) {
+        content.link = entry["link"] as String;
+      }
+      if (entry["title"] != null) {
+        content.link = entry["title"] as String;
+      }
+      if (entry["is_html"] != null) {
+        content.isHtml =( entry["is_html"] as int)>0;
+      }
+      if (entry["is_full_html"] != null) {
+        content.isFullHtml =( entry["is_full_html"] as int)>0;
+      }
     }
 
-    return data;
+    return content;
   }
 }
 
@@ -70,22 +82,20 @@ class ImageAsset {
 
 Future<String> getDbFile() async {
   String databasesPath = await databaseFactoryFfi.getDatabasesPath();
-  String path = p.join(databasesPath, 'words.db');
+  String path = p.join(databasesPath, 'data.db');
   return path;
 }
 
 Future<void> initializeDB() async {
   sqfliteFfiInit();
   var path = await getDbFile();
-  var dbFile=File(path);
-  if (! await dbFile.exists()){
-    var source=await rootBundle.load("assets/data.db");
-    dbFile=await dbFile.writeAsBytes(source.buffer.asInt8List());
+  var dbFile = File(path);
+  if (!await dbFile.exists()) {
+    var source = await rootBundle.load("assets/data.db");
+    dbFile=await dbFile.create(recursive: true);
+    dbFile = await dbFile.writeAsBytes(source.buffer.asInt8List());
   }
   databaseFactory = databaseFactoryFfi;
 
   ContentDB = await databaseFactoryFfi.openDatabase(path);
 }
-
-
-

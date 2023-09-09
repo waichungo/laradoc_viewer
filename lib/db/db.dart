@@ -37,7 +37,24 @@ class PageContent {
   DateTime updatedAt = DateTime.now();
   static Future<PageContent?> getContent(int id) async {
     PageContent? data;
-    var result = await ContentDB!.query('contents');
+    var result = await ContentDB!.query('contents',limit: 1);
+
+    if (result.isNotEmpty){
+        var entry=result[0];
+        if(entry["id"]!=null){
+            id=entry["id"] as int;
+        }
+        if(entry["created_at"]!=null){
+            var created=entry["created_at"] as String;
+        }
+        if(entry["created_at"]!=null){
+            var updated=entry["updated_at"] as String;
+        }
+        if(entry["data"]!=null){
+            var updated=entry["updated_at"] as String;
+        }
+
+    }
 
     return data;
   }

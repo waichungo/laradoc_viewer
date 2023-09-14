@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:laradoc_viewer/colors/colors.dart';
 import 'package:laradoc_viewer/db/db.dart';
 import 'package:laradoc_viewer/screens/home.dart';
+import 'package:laradoc_viewer/utils/utils.dart';
 
 class Splash extends StatefulWidget {
   Splash({super.key});
@@ -21,11 +22,11 @@ class _SplashState extends State<Splash> {
   }
 
   Future<void> init() async {
-    await initializeDB();
-    var data = await Meta.getMeta();
+    await initAppState();
     setState(() {
-      meta = data;
+      this.meta = appState.meta;
     });
+
     await Future.delayed(const Duration(seconds: 5));
     Navigator.pushReplacement<void, void>(context, MaterialPageRoute<void>(
       builder: (context) {
@@ -38,6 +39,7 @@ class _SplashState extends State<Splash> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
+        
         children: [
           Container(
             color: AppColours.lightTone,
@@ -50,39 +52,49 @@ class _SplashState extends State<Splash> {
             fit: BoxFit.cover,
           ),
           Align(
+            alignment: Alignment.bottomCenter,
             child: Container(
+              margin: const EdgeInsets.only(bottom: 24),
               child: CircularProgressIndicator(
                 color: AppColours.primary,
               ),
-              margin: EdgeInsets.only(bottom: 24),
             ),
-            alignment: Alignment.bottomCenter,
           ),
           meta != null
               ? Center(
                   child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        meta!.logoType == "svg"
-                            ? SvgPicture.memory(
-                                meta!.mainLogo,
-                                alignment: Alignment.center,
-                                width: 48,
-                                height: 48,
-                              )
-                            : Image.memory(meta!.mainLogo),
-                            Container(
-                              margin: EdgeInsets.all(16),
-                              child: Text(meta!.name,style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: AppColours.primaryDark,
-                                fontSize: 16
-                              ),),
-                            ),
-                      ],),
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      meta!.logoType == "svg"
+                          ? SvgPicture.memory(
+                              meta!.mainLogo,
+                              alignment: Alignment.center,
+                              width: 48,
+                              height: 48,
+                            )
+                          : Image.memory(meta!.mainLogo),
+                      Container(
+                        margin: const EdgeInsets.all(16),
+                        child: Text(
+                          meta!.name,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColours.primaryDark,
+                              fontSize: 16),
+                        ),
+                      ),
+                    ],
+                  ),
                 )
-              : Placeholder()
+              : Center(
+                child: Container(
+                  width: 100,
+                  child: LinearProgressIndicator(
+                    color: AppColours.primary,
+                  ),
+                ),
+              )
         ],
       ),
     );

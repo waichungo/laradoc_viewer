@@ -2,33 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:laradoc_viewer/colors/colors.dart';
 import 'package:laradoc_viewer/db/db.dart';
-import 'package:laradoc_viewer/screens/title_view.dart';
+import 'package:laradoc_viewer/screens/content_view.dart';
+import 'package:laradoc_viewer/utils/utils.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
 
-  static bool showDrawer=false;
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
-
-  var titleView = TitleView();
-  static Meta? meta;
-  @override
-  void initState() {
-    super.initState();
-    if (meta == null) {
-      Meta.getMeta().then((value) => {
-            setState(() {
-              meta = value;
-            })
-          });
-    }
-
-  
-  }
+  bool isOpened = false;
+  bool isLoading = true;
 
   @override
   void dispose() {
@@ -37,30 +23,133 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(children: [
-        Drawer(meta: meta),
-        AnimatedContainer(
+    return Stack(children: [
+      Container(
+        color: Colors.white,
+      ),
+      Drawer(),
+      AnimatedContainer(
           duration: Duration(milliseconds: 250),
-          color: Colors.transparent,
-          transform: Matrix4.translationValues(
-             Home. showDrawer ?  250:0, Home.showDrawer ?  100:0, 0),
-            transformAlignment: AlignmentDirectional.centerEnd,
-          child: titleView,
-        )
-      ]),
+          color: Colors.white,
+          transformAlignment: AlignmentDirectional.centerEnd,
+          transform:
+              Matrix4.translationValues(isOpened ? 72 : 0, isOpened ? 8 : 0, 0)
+                ..scale(isOpened ? 0.7 : 1.0),
+          child: Container(
+            child: getTitleView(),
+            decoration: BoxDecoration(boxShadow: [
+              BoxShadow(
+                blurRadius: 16,
+                color: AppColours.dark.withAlpha(80),
+              ),
+            ]),
+          )),
+    ]);
+  }
+
+  Widget getTitleView() {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: AppColours.primary,
+        title: Text(
+          appState.pages[appState.selectedpage].name,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: AppColours.lightTone,
+            fontSize: 20,
+          ),
+        ),
+        centerTitle: false,
+        leading: GestureDetector(
+          child: Icon(isOpened ? Icons.arrow_back : Icons.menu,
+              color: AppColours.lightTone),
+          onTap: () {
+            setState(() {
+              isOpened = !isOpened;
+            });
+          },
+        ),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+        ),
+        child: appState.pages.length == 0
+            ? Center()
+            : ListView.builder(
+                shrinkWrap: true,
+                itemCount:
+                    appState.pages[appState.selectedpage].children.length,
+                itemBuilder: (context, index) {
+                  var page =
+                      appState.pages[appState.selectedpage].children[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) {
+                          return ContentView(contentPage: page);
+                        }),
+                      );
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(
+                          top: 16, left: 16, right: 16, bottom: 8),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                              blurRadius: 16,
+                              spreadRadius: 2,
+                              blurStyle: BlurStyle.normal,
+                              color: AppColours.dark.withAlpha(40)),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            index < 9 ? "0${index + 1}." : "${index + 1}.",
+                            textAlign: TextAlign.start,
+                            style: TextStyle(
+                              color: AppColours.primary,
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 16,
+                          ),
+                          Text(
+                            page.name,
+                            textAlign: TextAlign.start,
+                            style: TextStyle(
+                                color: AppColours.dark,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+      ),
     );
   }
 }
 
-class Drawer extends StatelessWidget {
-  const Drawer({
-    super.key,
-    required this.meta,
-  });
+class Drawer extends StatefulWidget {
+  const Drawer({super.key});
 
-  final Meta? meta;
+  @override
+  State<Drawer> createState() => _DrawerState();
+}
 
+class _DrawerState extends State<Drawer> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -77,7 +166,7 @@ class Drawer extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  meta != null
+                  appState.meta != null
                       ? Container(
                           width: 72,
                           height: 72,
@@ -87,21 +176,21 @@ class Drawer extends StatelessWidget {
                             borderRadius: BorderRadius.circular(60),
                           ),
                           padding: const EdgeInsets.all(16),
-                          child: meta!.logoType == "svg"
+                          child: appState.meta!.logoType == "svg"
                               ? SvgPicture.memory(
-                                  meta!.mainLogo,
+                                  appState.meta!.mainLogo,
                                   alignment: Alignment.center,
                                   width: 48,
                                   height: 48,
                                 )
-                              : Image.memory(meta!.mainLogo),
+                              : Image.memory(appState.meta!.mainLogo),
                         )
                       : const Placeholder(),
                   const SizedBox(
                     width: 16,
                   ),
                   Text(
-                    meta?.name ?? "",
+                    appState.meta?.name ?? "",
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: AppColours.lightTone,
@@ -113,36 +202,51 @@ class Drawer extends StatelessWidget {
             Expanded(
               child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 48),
-                child: Expanded(
-                  child: ListView.builder(
-                    itemCount: 100,
-                    shrinkWrap: true,
-                    controller: ScrollController(),
-                    itemBuilder: (context, index) {
-                      var isSelected = index == 0;
-                      return Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppColours.lightTone
-                                : Colors.transparent),
-                        child: Row(
-                          children: [
-                            Text(
-                              "Main content ${index + 1}",
-                              style: TextStyle(
-                                fontWeight: FontWeight.normal,
-                                color: isSelected
-                                    ? AppColours.dark
-                                    : AppColours.lightTone,
-                                fontSize: 16,
+                child: ListView.builder(
+                  itemCount: appState.pages.length,
+                  shrinkWrap: true,
+                  controller: ScrollController(),
+                  itemBuilder: (context, index) {
+                    var isSelected = appState.selectedpage == index;
+                    var hovered = false;
+                    return Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            appState.selectedpage = index;
+                          });
+                        },
+                        onHover: (value) {
+                          setState(() {
+                            hovered = value;
+                          });
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                              color: isSelected || hovered
+                                  ? AppColours.lightTone
+                                  : Colors.transparent),
+                          child: Row(
+                            children: [
+                              Text(
+                                "${appState.pages[index].name}",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                  color: isSelected
+                                      ? AppColours.dark
+                                      : AppColours.lightTone,
+                                  fontSize: 16,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),

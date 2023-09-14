@@ -13,38 +13,52 @@ class Page {
   String link = "";
   String name = "";
   String parentName = "";
-  List<Page> children=[];
+  List<Page> children = [];
   bool isNested = false;
   DateTime createdAt = DateTime.now();
   DateTime updatedAt = DateTime.now();
+  static Future<Page?> findWithUrl(String url) async {
+    var result = await ContentDB!
+        .query('contents', limit: 1, where: "link = ?", whereArgs: [url]);
+    if (result.isNotEmpty) {
+      return fillPageWithResultEntry(result[0]);
+    }
+
+    return null;
+  }
+
+  static Page fillPageWithResultEntry(Map<String, dynamic> entry) {
+    Page page = Page();
+    if (entry["id"] != null) {
+      page.id = entry["id"] as int;
+    }
+    if (entry["created_at"] != null) {
+      var created = entry["created_at"] as String;
+    }
+    if (entry["updated_at"] != null) {
+      var updated = entry["updated_at"] as String;
+    }
+    if (entry["name"] != null) {
+      page.name = entry["name"] as String;
+    }
+    if (entry["link"] != null) {
+      page.link = entry["link"] as String;
+    }
+    if (entry["parent"] != null) {
+      page.parentName = entry["parent"] as String;
+    }
+    if (entry["is_nested"] != null) {
+      page.isNested = entry["is_nested"] as int > 0;
+    }
+    return page;
+  }
+
   static Future<List<Page>> getPages() async {
     List<Page> pages = [];
     var result = await ContentDB!.query('pages');
     if (result.isNotEmpty) {
       for (var entry in result) {
-        Page page = Page();
-        if (entry["id"] != null) {
-          page.id = entry["id"] as int;
-        }
-        if (entry["created_at"] != null) {
-          var created = entry["created_at"] as String;
-        }
-        if (entry["updated_at"] != null) {
-          var updated = entry["updated_at"] as String;
-        }
-        if (entry["name"] != null) {
-          page.name = entry["name"] as String;
-        }
-        if (entry["link"] != null) {
-          page.link = entry["link"] as String;
-        }
-        if (entry["parent"] != null) {
-          page.parentName = entry["parent"] as String;
-        }
-        if (entry["is_nested"] != null) {
-          page.isNested = entry["is_nested"] as int > 0;
-        }
-        pages.add(page)
+        pages.add(fillPageWithResultEntry(entry));
       }
     }
     return pages;
@@ -99,11 +113,8 @@ class PageContent {
   bool isFullHtml = false;
   DateTime createdAt = DateTime.now();
   DateTime updatedAt = DateTime.now();
-  static Future<PageContent?> find(int id) async {
+  static PageContent? loadResultSet(List<Map<String, Object?>> result) {
     PageContent? content;
-    var result = await ContentDB!
-        .query('contents', limit: 1, where: "id = ?", whereArgs: [id]);
-
     if (result.isNotEmpty) {
       var entry = result[0];
       content = PageContent();
@@ -133,6 +144,18 @@ class PageContent {
       }
     }
     return content;
+  }
+
+  static Future<PageContent?> find(int id) async {
+    var result = await ContentDB!
+        .query('contents', limit: 1, where: "id = ?", whereArgs: [id]);
+    return loadResultSet(result);
+  }
+
+  static Future<PageContent?> findWithUrl(String url) async {
+    var result = await ContentDB!
+        .query('contents', limit: 1, where: "link = ?", whereArgs: [url]);
+    return loadResultSet(result);
   }
 }
 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1600">
+  <g id="Layer_1-2" data-name="Layer 1">
+    <g>
+      <rect fill="transparent" width="800" height="1600"/>
+      <path fill="#ea5e56" d="m0,750.02C326.69,685.89,572.83,402.97,572.83,63.65c0-21.46-.99-42.69-2.92-63.65H0v750.02Z"/>
+      <path fill="#4a4a4a" d="m800,916.26c-320.31,68.91-560.05,348.86-560.05,683.74h560.05v-683.74Z"/>
+    </g>
+  </g>
+</svg>

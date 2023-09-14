@@ -12,9 +12,43 @@ class Page {
   int id = -1;
   String link = "";
   String name = "";
-  String parent = "";
+  String parentName = "";
+  List<Page> children=[];
+  bool isNested = false;
   DateTime createdAt = DateTime.now();
   DateTime updatedAt = DateTime.now();
+  static Future<List<Page>> getPages() async {
+    List<Page> pages = [];
+    var result = await ContentDB!.query('pages');
+    if (result.isNotEmpty) {
+      for (var entry in result) {
+        Page page = Page();
+        if (entry["id"] != null) {
+          page.id = entry["id"] as int;
+        }
+        if (entry["created_at"] != null) {
+          var created = entry["created_at"] as String;
+        }
+        if (entry["updated_at"] != null) {
+          var updated = entry["updated_at"] as String;
+        }
+        if (entry["name"] != null) {
+          page.name = entry["name"] as String;
+        }
+        if (entry["link"] != null) {
+          page.link = entry["link"] as String;
+        }
+        if (entry["parent"] != null) {
+          page.parentName = entry["parent"] as String;
+        }
+        if (entry["is_nested"] != null) {
+          page.isNested = entry["is_nested"] as int > 0;
+        }
+        pages.add(page)
+      }
+    }
+    return pages;
+  }
 }
 
 class Meta {
@@ -25,6 +59,35 @@ class Meta {
   String name = "";
   DateTime createdAt = DateTime.now();
   DateTime updatedAt = DateTime.now();
+
+  static Future<Meta?> getMeta() async {
+    Meta? meta;
+    var result = await ContentDB!.query('meta', limit: 1);
+
+    if (result.isNotEmpty) {
+      var entry = result[0];
+      meta = Meta();
+      if (entry["id"] != null) {
+        meta.id = entry["id"] as int;
+      }
+      if (entry["created_at"] != null) {
+        var created = entry["created_at"] as String;
+      }
+      if (entry["updated_at"] != null) {
+        var updated = entry["updated_at"] as String;
+      }
+      if (entry["main_logo"] != null) {
+        meta.mainLogo = entry["main_logo"] as Uint8List;
+      }
+      if (entry["name"] != null) {
+        meta.name = entry["name"] as String;
+      }
+      if (entry["logo_type"] != null) {
+        meta.logoType = entry["logo_type"] as String;
+      }
+    }
+    return meta;
+  }
 }
 
 class PageContent {

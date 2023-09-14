@@ -35,21 +35,21 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Laravel 10'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
+  MyHomePage({super.key, this.title = ""});
+  String title;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int id = 13;
+  int id = 89;
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -59,34 +59,52 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+      body: FutureBuilder(
+        future: PageContent.find(id),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasData || snapshot.data != null) {
+              // setState(() {
+              //   widget.title=snapshot.data!.title;
+              // });
+              return Column(
+                // shrinkWrap: true,
+                children: [
+                  AppBar(
+                    // TRY THIS: Try changing the color here to a specific color (to
+                    // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
+                    // change color while the other colors stay the same.
+                    backgroundColor:
+                        Theme.of(context).colorScheme.inversePrimary,
+                    // Here we take the value from the MyHomePage object that was created by
+                    // the App.build method, and use it to set our appbar title.
+                    title: Text(snapshot.data!.title),
+                  ),
+                  Expanded(
+                    child: Markdown(
+                      data: snapshot.data!.data,
+                      onTapLink: (text, href, title) {
+                        print("Tapped link");
+                      },
+                    ),
+                  ),
+                ],
+              );
+            } else {
+              return Center(
+                child: Text("Sorry data could not be loaded"),
+              );
+            }
+          }
+          if (snapshot.hasError) {
+            return Center(
+              child: Text("Sorry an error occured while loading"),
+            );
+          }
+
+          return Center(child: CircularProgressIndicator());
+        },
       ),
-      body:FutureBuilder(
-            future: PageContent.getContent(id),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                if (snapshot.data != null) {
-                  return Markdown(data: snapshot.data!.data);
-                }
-                return Center(
-                  child: Text("Sorry data could not be loaded"),
-                );
-              } else if (snapshot.hasError) {
-                return Center(
-                  child: Text("Sorry an error occured while loading"),
-                );
-              }
-        
-              return Center(child: CircularProgressIndicator());
-            },
-          ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           int next = 0;

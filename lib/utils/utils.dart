@@ -4,6 +4,7 @@ class AppState {
   Meta? meta;
   List<Page> pages = [];
   int selectedpage = 0;
+  bool isHomeDrawerOpen = false;
 }
 
 List<Page> _getParents(List<Page> pages) {

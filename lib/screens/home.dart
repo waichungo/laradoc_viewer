@@ -13,7 +13,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
-  bool isOpened = false;
+
   bool isLoading = true;
 
   @override
@@ -33,8 +33,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           color: Colors.white,
           transformAlignment: AlignmentDirectional.centerEnd,
           transform:
-              Matrix4.translationValues(isOpened ? 72 : 0, isOpened ? 8 : 0, 0)
-                ..scale(isOpened ? 0.7 : 1.0),
+              Matrix4.translationValues(appState.isHomeDrawerOpen ? 72 : 0, appState.isHomeDrawerOpen ? 8 : 0, 0)
+                ..scale(appState.isHomeDrawerOpen ? 0.7 : 1.0),
           child: Container(
             child: getTitleView(),
             decoration: BoxDecoration(boxShadow: [
@@ -61,11 +61,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         ),
         centerTitle: false,
         leading: GestureDetector(
-          child: Icon(isOpened ? Icons.arrow_back : Icons.menu,
+          child: Icon(appState.isHomeDrawerOpen ? Icons.arrow_back : Icons.menu,
               color: AppColours.lightTone),
           onTap: () {
             setState(() {
-              isOpened = !isOpened;
+              appState.isHomeDrawerOpen = !appState.isHomeDrawerOpen;
             });
           },
         ),
@@ -215,6 +215,7 @@ class _DrawerState extends State<Drawer> {
                         onTap: () {
                           setState(() {
                             appState.selectedpage = index;
+                            appState.isHomeDrawerOpen=!appState.isHomeDrawerOpen;
                           });
                         },
                         onHover: (value) {

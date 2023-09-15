@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:laradoc_viewer/colors/colors.dart';
 import 'package:laradoc_viewer/db/db.dart' as db;
+import 'package:markdown/markdown.dart' as md;
+import 'package:laradoc_viewer/utils/utils.dart';
 
 class ContentView extends StatefulWidget {
   db.Page contentPage;
@@ -20,6 +22,18 @@ class _ContentViewState extends State<ContentView> {
     loadContent();
   }
 
+  TextStyle defaultTextStyle = TextStyle(
+    color: AppColours.dark,
+    fontSize: 16,
+  );
+  TextStyle codeStyle = TextStyle(
+    fontSize: 16
+  );
+  TextStyle linkTextStyle = TextStyle(
+    color: AppColours.primary,
+    decoration: TextDecoration.underline,
+    fontSize: 16,
+  );
   void loadContent() async {
     if (content == null) {
       var ct = await db.PageContent.findWithUrl(widget.contentPage.link);
@@ -89,10 +103,27 @@ class _ContentViewState extends State<ContentView> {
                         shrinkWrap: true,
                         data: content!.data,
                         selectable: true,
+                        extensionSet: md.ExtensionSet(
+                          md.ExtensionSet.gitHubFlavored.blockSyntaxes,
+                          <md.InlineSyntax>[
+                            md.EmojiSyntax(),
+                            ...md.ExtensionSet.gitHubFlavored.inlineSyntaxes
+                          ],
+                        ),
+                        styleSheet: MarkdownStyleSheet(
+                          a: linkTextStyle,
+                          p: defaultTextStyle,
+                          codeblockPadding: EdgeInsets.symmetric(vertical: 16),
+                       
+                          pPadding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
                         listItemCrossAxisAlignment:
                             MarkdownListItemCrossAxisAlignment.start,
                         onTapLink: (text, href, title) async {
                           if (href != null) {
+                            if (!href.startsWith("http")) {
+                              href = appState.meta!.link + href;
+                            }
                             var data =
                                 await db.PageContent.findWithUrl(href ?? "");
                             if (data != null) {

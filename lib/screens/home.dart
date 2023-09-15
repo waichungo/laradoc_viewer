@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:laradoc_viewer/colors/colors.dart';
 import 'package:laradoc_viewer/db/db.dart';
@@ -12,9 +13,21 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
+final isDrawerOpenedProvider =
+    NotifierProvider<DrawerOpenedNotifier, bool>(DrawerOpenedNotifier.new);
 
+class DrawerOpenedNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void toggle() {
+    state = !state;
+  }
+}
+
+class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   bool isLoading = true;
+  bool isHomeDrawerOpen = true;
 
   @override
   void dispose() {
@@ -27,14 +40,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       Container(
         color: Colors.white,
       ),
-      Drawer(),
+      getDrawer(),
       AnimatedContainer(
           duration: Duration(milliseconds: 250),
           color: Colors.white,
           transformAlignment: AlignmentDirectional.centerEnd,
-          transform:
-              Matrix4.translationValues(appState.isHomeDrawerOpen ? 72 : 0, appState.isHomeDrawerOpen ? 8 : 0, 0)
-                ..scale(appState.isHomeDrawerOpen ? 0.7 : 1.0),
+          transform: Matrix4.translationValues(
+              isHomeDrawerOpen ? 72 : 0, isHomeDrawerOpen ? 8 : 0, 0)
+            ..scale(isHomeDrawerOpen ? 0.7 : 1.0),
           child: Container(
             child: getTitleView(),
             decoration: BoxDecoration(boxShadow: [
@@ -47,116 +60,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     ]);
   }
 
-  Widget getTitleView() {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColours.primary,
-        title: Text(
-          appState.pages[appState.selectedpage].name,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: AppColours.lightTone,
-            fontSize: 20,
-          ),
-        ),
-        centerTitle: false,
-        leading: GestureDetector(
-          child: Icon(appState.isHomeDrawerOpen ? Icons.arrow_back : Icons.menu,
-              color: AppColours.lightTone),
-          onTap: () {
-            setState(() {
-              appState.isHomeDrawerOpen = !appState.isHomeDrawerOpen;
-            });
-          },
-        ),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-        ),
-        child: appState.pages.length == 0
-            ? Center()
-            : ListView.builder(
-                shrinkWrap: true,
-                itemCount:
-                    appState.pages[appState.selectedpage].children.length,
-                itemBuilder: (context, index) {
-                  var page =
-                      appState.pages[appState.selectedpage].children[index];
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) {
-                          return ContentView(contentPage: page);
-                        }),
-                      );
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(
-                          top: 16, left: 16, right: 16, bottom: 8),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                              blurRadius: 16,
-                              spreadRadius: 2,
-                              blurStyle: BlurStyle.normal,
-                              color: AppColours.dark.withAlpha(40)),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            index < 9 ? "0${index + 1}." : "${index + 1}.",
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                              color: AppColours.primary,
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 16,
-                          ),
-                          Text(
-                            page.name,
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                                color: AppColours.dark,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-      ),
-    );
-  }
-}
-
-class Drawer extends StatefulWidget {
-  const Drawer({super.key});
-
-  @override
-  State<Drawer> createState() => _DrawerState();
-}
-
-class _DrawerState extends State<Drawer> {
-  @override
-  Widget build(BuildContext context) {
+  Widget getDrawer() {
     return Container(
       width: 240,
       color: AppColours.primary,
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Material(
+        color: AppColours.primary,
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
@@ -216,7 +126,7 @@ class _DrawerState extends State<Drawer> {
                           onTap: () {
                             setState(() {
                               appState.selectedpage = index;
-                              appState.isHomeDrawerOpen=!appState.isHomeDrawerOpen;
+                              isHomeDrawerOpen = !isHomeDrawerOpen;
                             });
                           },
                           onHover: (value) {
@@ -231,19 +141,18 @@ class _DrawerState extends State<Drawer> {
                                 color: isSelected || hovered
                                     ? AppColours.lightTone
                                     : Colors.transparent),
-                            child: Row(
-                              children: [
-                                Text(
-                                  "${appState.pages[index].name} (${appState.pages[index].children.length})",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    color: isSelected
-                                        ? AppColours.dark
-                                        : AppColours.lightTone,
-                                    fontSize: 16,
-                                  ),
+                            child: IntrinsicWidth(
+                              child: Text(
+                                "${appState.pages[index].name} (${appState.pages[index].children.length})",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                  color: isSelected
+                                      ? AppColours.dark
+                                      : AppColours.lightTone,
+                                  fontSize: 16,
                                 ),
-                              ],
+                                softWrap: true,
+                              ),
                             ),
                           ),
                         ),
@@ -276,6 +185,103 @@ class _DrawerState extends State<Drawer> {
                 ),
               ),
             ]),
+      ),
+    );
+  }
+
+  Widget getTitleView() {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: AppColours.primary,
+        title: Text(
+          appState.pages[appState.selectedpage].name,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: AppColours.lightTone,
+            fontSize: 20,
+          ),
+        ),
+        centerTitle: false,
+        leading: GestureDetector(
+          child: Icon(isHomeDrawerOpen ? Icons.arrow_back : Icons.menu,
+              color: AppColours.lightTone),
+          onTap: () {
+            setState(() {
+              isHomeDrawerOpen = !isHomeDrawerOpen;
+            });
+          },
+        ),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+        ),
+        child: appState.pages.length == 0
+            ? Center()
+            : ListView.builder(
+                shrinkWrap: true,
+                itemCount:
+                    appState.pages[appState.selectedpage].children.length,
+                itemBuilder: (context, index) {
+                  var page =
+                      appState.pages[appState.selectedpage].children[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) {
+                          return ContentView(contentPage: page);
+                        }),
+                      );
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(
+                          top: 16, left: 16, right: 16, bottom: 8),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                              blurRadius: 16,
+                              spreadRadius: 2,
+                              blurStyle: BlurStyle.normal,
+                              color: AppColours.dark.withAlpha(40)),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            index < 9 ? "0${index + 1}." : "${index + 1}.",
+                            textAlign: TextAlign.start,
+                            style: TextStyle(
+                              color: AppColours.primary,
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 16,
+                          ),
+                          Expanded(
+                            child: Text(
+                              page.name,
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: AppColours.dark,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold),
+                              softWrap: true,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
       ),
     );
   }

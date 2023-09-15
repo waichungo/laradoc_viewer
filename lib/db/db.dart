@@ -99,6 +99,9 @@ class Meta {
       if (entry["logo_type"] != null) {
         meta.logoType = entry["logo_type"] as String;
       }
+      if (entry["source"] != null) {
+        meta.link = entry["source"] as String;
+      }
     }
     return meta;
   }
@@ -162,9 +165,74 @@ class PageContent {
 class ImageAsset {
   int id = -1;
   String url = "";
+  String originalurl = "";
+  String sourcePage = "";
   Uint8List data = Uint8List(0);
   DateTime createdAt = DateTime.now();
   DateTime updatedAt = DateTime.now();
+  static ImageAsset? loadImage(Map<String, Object?> result,
+      {bool loadData = true}) {
+    ImageAsset? content;
+    if (result.isNotEmpty) {
+      var entry = result;
+      content = ImageAsset();
+      if (entry["id"] != null) {
+        content.id = entry["id"] as int;
+      }
+      if (entry["created_at"] != null) {
+        var created = entry["created_at"] as String;
+      }
+      if (entry["updated_at"] != null) {
+        var updated = entry["updated_at"] as String;
+      }
+      if (loadData && entry["data"] != null) {
+        content.data = entry["data"] as Uint8List;
+      }
+      if (entry["url"] != null) {
+        content.url = entry["url"] as String;
+      }
+      if (entry["original_url"] != null) {
+        content.originalurl = entry["original_url"] as String;
+      }
+      if (entry["source_page"] != null) {
+        content.sourcePage = entry["source_page"] as String;
+      }
+    }
+    return content;
+  }
+
+  static List<ImageAsset> loadResultSet(List<Map<String, Object?>> result,
+      {bool loadData = true}) {
+    List<ImageAsset> res =
+        result.map((entry) => loadImage(entry, loadData: loadData)!).toList();
+    return res;
+  }
+
+  static Future<ImageAsset?> find(int id, bool loadData) async {
+    ImageAsset? image;
+    var result = await ContentDB!
+        .query('images', limit: 1, where: "id = ?", whereArgs: [id]);
+    if (result.isNotEmpty) {
+      image = loadImage(result[0]);
+    }
+    return image;
+  }
+
+  static Future<List<ImageAsset>> getImages(bool loadData) async {
+    List<ImageAsset> images = [];
+    var result = await ContentDB!.query('images');
+    if (result.isNotEmpty) {
+      images = loadResultSet(result, loadData: loadData);
+    }
+    return images;
+  }
+
+  static Future<List<String>> getImageLinks() async {
+    var result = await ContentDB!.query('images');
+    List<String> links =
+        loadResultSet(result, loadData: false).map((e) => e.url).toList();
+    return links;
+  }
 }
 
 Future<String> getDbFile() async {

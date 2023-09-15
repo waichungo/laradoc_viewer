@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:laradoc_viewer/colors/colors.dart';
 import 'package:laradoc_viewer/db/db.dart';
 import 'package:laradoc_viewer/screens/home.dart';
@@ -10,7 +11,11 @@ import 'package:laradoc_viewer/screens/splash.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(const MyApp());
+  runApp(
+    ProviderScope(
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -25,7 +30,7 @@ class MyApp extends StatelessWidget {
         fontFamily: "Poppins",
         colorScheme: ColorScheme.fromSeed(
           seedColor: AppColours.primary,
-          background: AppColours.lightTone,
+          background: Colors.white,
         ),
         useMaterial3: true,
       ),

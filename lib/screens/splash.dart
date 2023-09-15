@@ -39,7 +39,6 @@ class _SplashState extends State<Splash> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
-        
         children: [
           Container(
             color: AppColours.lightTone,
@@ -88,13 +87,13 @@ class _SplashState extends State<Splash> {
                   ),
                 )
               : Center(
-                child: Container(
-                  width: 100,
-                  child: LinearProgressIndicator(
-                    color: AppColours.primary,
+                  child: Container(
+                    width: 100,
+                    child: LinearProgressIndicator(
+                      color: AppColours.primary,
+                    ),
                   ),
-                ),
-              )
+                )
         ],
       ),
     );

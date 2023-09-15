@@ -5,6 +5,7 @@ import 'package:laradoc_viewer/colors/colors.dart';
 import 'package:laradoc_viewer/db/db.dart' as db;
 import 'package:markdown/markdown.dart' as md;
 import 'package:laradoc_viewer/utils/utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ContentView extends StatefulWidget {
   db.Page contentPage;
@@ -26,9 +27,7 @@ class _ContentViewState extends State<ContentView> {
     color: AppColours.dark,
     fontSize: 16,
   );
-  TextStyle codeStyle = TextStyle(
-    fontSize: 16
-  );
+  TextStyle codeStyle = TextStyle(fontSize: 16);
   TextStyle linkTextStyle = TextStyle(
     color: AppColours.primary,
     decoration: TextDecoration.underline,
@@ -66,7 +65,9 @@ class _ContentViewState extends State<ContentView> {
             children: [
               Expanded(
                 child: Text(
-                  widget.contentPage.name!,
+                  (content == null || content!.title.isEmpty)
+                      ? widget.contentPage.name!
+                      : content!.title,
                   softWrap: true,
                   textAlign: TextAlign.start,
                   style: TextStyle(
@@ -113,14 +114,14 @@ class _ContentViewState extends State<ContentView> {
                         styleSheet: MarkdownStyleSheet(
                           a: linkTextStyle,
                           p: defaultTextStyle,
+                          strong: defaultTextStyle,
                           codeblockPadding: EdgeInsets.symmetric(vertical: 16),
-                       
                           pPadding: const EdgeInsets.symmetric(vertical: 16),
                         ),
                         listItemCrossAxisAlignment:
                             MarkdownListItemCrossAxisAlignment.start,
                         onTapLink: (text, href, title) async {
-                          if (href != null) {
+                          if (href != null && !href.startsWith("#")) {
                             if (!href.startsWith("http")) {
                               href = appState.meta!.link + href;
                             }
@@ -136,6 +137,8 @@ class _ContentViewState extends State<ContentView> {
                                   }),
                                 );
                               }
+                            } else {
+                              await launchUrl(Uri.parse(href));
                             }
                           }
                         },

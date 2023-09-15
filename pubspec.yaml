@@ -45,7 +45,7 @@ dependencies:
   flutter_svg: ^2.0.7
   crypto: ^3.0.3
   url_launcher: ^6.1.14
-  flutter_riverpod: ^2.4.0
+  markdown_widget: 
 
   
 

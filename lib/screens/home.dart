@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:laradoc_viewer/colors/colors.dart';
 import 'package:laradoc_viewer/db/db.dart';
@@ -11,18 +10,6 @@ class Home extends StatefulWidget {
 
   @override
   State<Home> createState() => _HomeState();
-}
-
-final isDrawerOpenedProvider =
-    NotifierProvider<DrawerOpenedNotifier, bool>(DrawerOpenedNotifier.new);
-
-class DrawerOpenedNotifier extends Notifier<bool> {
-  @override
-  bool build() => false;
-
-  void toggle() {
-    state = !state;
-  }
 }
 
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
@@ -125,8 +112,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         child: InkWell(
                           onTap: () {
                             setState(() {
-                              appState.selectedpage = index;
                               isHomeDrawerOpen = !isHomeDrawerOpen;
+                              appState.selectedpage = index;
                             });
                           },
                           onHover: (value) {

@@ -156,125 +156,127 @@ class _DrawerState extends State<Drawer> {
       width: 240,
       color: AppColours.primary,
       padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  appState.meta != null
-                      ? Container(
-                          width: 72,
-                          height: 72,
-                          margin: const EdgeInsets.only(top: 16),
-                          decoration: BoxDecoration(
-                            color: AppColours.lightTone,
-                            borderRadius: BorderRadius.circular(60),
-                          ),
-                          padding: const EdgeInsets.all(16),
-                          child: appState.meta!.logoType == "svg"
-                              ? SvgPicture.memory(
-                                  appState.meta!.mainLogo,
-                                  alignment: Alignment.center,
-                                  width: 48,
-                                  height: 48,
-                                )
-                              : Image.memory(appState.meta!.mainLogo),
-                        )
-                      : const Placeholder(),
-                  const SizedBox(
-                    width: 16,
-                  ),
-                  Text(
-                    appState.meta?.name ?? "",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: AppColours.lightTone,
-                        fontSize: 20),
-                  )
-                ],
-              ),
-            ),
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 48),
-                child: ListView.builder(
-                  itemCount: appState.pages.length,
-                  shrinkWrap: true,
-                  controller: ScrollController(),
-                  itemBuilder: (context, index) {
-                    var isSelected = appState.selectedpage == index;
-                    var hovered = false;
-                    return Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          setState(() {
-                            appState.selectedpage = index;
-                            appState.isHomeDrawerOpen=!appState.isHomeDrawerOpen;
-                          });
-                        },
-                        onHover: (value) {
-                          setState(() {
-                            hovered = value;
-                          });
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 250),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                              color: isSelected || hovered
-                                  ? AppColours.lightTone
-                                  : Colors.transparent),
-                          child: Row(
-                            children: [
-                              Text(
-                                "${appState.pages[index].name}",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.normal,
-                                  color: isSelected
-                                      ? AppColours.dark
-                                      : AppColours.lightTone,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+      child: Material(
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    appState.meta != null
+                        ? Container(
+                            width: 72,
+                            height: 72,
+                            margin: const EdgeInsets.only(top: 16),
+                            decoration: BoxDecoration(
+                              color: AppColours.lightTone,
+                              borderRadius: BorderRadius.circular(60),
+                            ),
+                            padding: const EdgeInsets.all(16),
+                            child: appState.meta!.logoType == "svg"
+                                ? SvgPicture.memory(
+                                    appState.meta!.mainLogo,
+                                    alignment: Alignment.center,
+                                    width: 48,
+                                    height: 48,
+                                  )
+                                : Image.memory(appState.meta!.mainLogo),
+                          )
+                        : const Placeholder(),
+                    const SizedBox(
+                      width: 16,
+                    ),
+                    Text(
+                      appState.meta?.name ?? "",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: AppColours.lightTone,
+                          fontSize: 20),
+                    )
+                  ],
                 ),
               ),
-            ),
-            Container(
-              margin: EdgeInsets.all(16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.bookmark,
-                    color: AppColours.lightTone,
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(vertical: 48),
+                  child: ListView.builder(
+                    itemCount: appState.pages.length,
+                    shrinkWrap: true,
+                    controller: ScrollController(),
+                    itemBuilder: (context, index) {
+                      var isSelected = appState.selectedpage == index;
+                      var hovered = false;
+                      return Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              appState.selectedpage = index;
+                              appState.isHomeDrawerOpen=!appState.isHomeDrawerOpen;
+                            });
+                          },
+                          onHover: (value) {
+                            setState(() {
+                              hovered = value;
+                            });
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                                color: isSelected || hovered
+                                    ? AppColours.lightTone
+                                    : Colors.transparent),
+                            child: Row(
+                              children: [
+                                Text(
+                                  "${appState.pages[index].name} (${appState.pages[index].children.length})",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                    color: isSelected
+                                        ? AppColours.dark
+                                        : AppColours.lightTone,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                  SizedBox(
-                    width: 16,
-                  ),
-                  Text(
-                    "Bookmarks",
-                    style: TextStyle(
-                      fontWeight: FontWeight.normal,
-                      color: AppColours.lightTone,
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ]),
+              Container(
+                margin: EdgeInsets.all(16),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.bookmark,
+                      color: AppColours.lightTone,
+                    ),
+                    SizedBox(
+                      width: 16,
+                    ),
+                    Text(
+                      "Bookmarks",
+                      style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        color: AppColours.lightTone,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ]),
+      ),
     );
   }
 }

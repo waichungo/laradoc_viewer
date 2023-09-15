@@ -21,8 +21,12 @@ List<Page> _getParents(List<Page> pages) {
       parentSet.add(page.parentName);
     }
   }
-  for (var page in parentSet) {
-    parents.add(Page()..name = page);
+  for (var name in parentSet) {
+    var page = Page()..name = name;
+    if (map.containsKey(name)) {
+      page = map[name] ?? page;
+    }
+    parents.add(page);
   }
   return parents;
 }
@@ -40,6 +44,9 @@ initAppState() async {
     for (var parent in parents) {
       parent.children =
           pages.where((element) => element.parentName == parent.name).toList();
+      if (parent.link.isNotEmpty) {
+        parent.children.insert(0, parent);
+      }
     }
     appState.pages = parents;
   }

@@ -14,7 +14,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
-  static bool isLoading = true;
   static bool isHomeDrawerOpen = false;
   static bool showBookmarks = false;
 
@@ -71,6 +70,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              const SizedBox(
+                height: 16,
+              ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(

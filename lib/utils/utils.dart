@@ -88,7 +88,6 @@ Future<String> getImageAssetFileNameFromUrl(String url) async {
 
 Future<void> loadImages() async {
   var images = await ImageAsset.getImages(false);
-  var dir = await getImagesDirectory();
   for (var image in images) {
     var imageFileName = await getImageAssetFileNameFromUrl(image.url);
     var imageFile = File(imageFileName);

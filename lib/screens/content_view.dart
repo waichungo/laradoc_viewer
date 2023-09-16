@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:laradoc_viewer/colors/colors.dart';
 import 'package:laradoc_viewer/db/db.dart' as db;
@@ -8,9 +5,7 @@ import 'package:laradoc_viewer/screens/home.dart';
 import 'package:laradoc_viewer/utils/utils.dart';
 import 'package:markdown_widget/config/all.dart';
 import 'package:markdown_widget/widget/all.dart';
-import 'package:markdown_widget/widget/markdown.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:path/path.dart' as p;
 
 class ContentView extends StatefulWidget {
   db.Page contentPage;
@@ -34,7 +29,7 @@ class _ContentViewState extends State<ContentView> {
     color: AppColours.dark,
     fontSize: 16,
   );
-  TextStyle codeStyle = TextStyle(fontSize: 16);
+  TextStyle codeStyle = const TextStyle(fontSize: 16);
   TextStyle linkTextStyle = TextStyle(
     color: AppColours.primary,
     decoration: TextDecoration.underline,
@@ -56,17 +51,13 @@ class _ContentViewState extends State<ContentView> {
 
   Future<void> processContent(db.PageContent dbContent) async {
     var images = await db.ImageAsset.findWithQuery(
-        false, "source_page = ?", [dbContent!.link]);
+        false, "source_page = ?", [dbContent.link]);
     for (var image in images) {
       var assetName = await getImageAssetFileNameFromUrl(image.url);
       // var uri = File(assetName).uri.toString();
       dbContent!.data =
           dbContent!.data.replaceAll(image.originalurl, assetName);
     }
-    // if (images.isNotEmpty) {
-    //   await File(r"C:\users\james\desktop\doc.md")
-    //       .writeAsString(dbContent.data);
-    // }
   }
 
   @override
@@ -85,7 +76,7 @@ class _ContentViewState extends State<ContentView> {
         ),
       ),
       body: Container(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -129,7 +120,7 @@ class _ContentViewState extends State<ContentView> {
             ],
           ),
           Container(
-            margin: EdgeInsets.symmetric(vertical: 16),
+            margin: const EdgeInsets.symmetric(vertical: 16),
             height: 1,
             color: AppColours.primary,
           ),
@@ -141,7 +132,7 @@ class _ContentViewState extends State<ContentView> {
                     ),
                   )
                 : (content!.isHtml
-                    ? Placeholder()
+                    ? const Placeholder()
                     : getMarkDown(content!.data)),
           )
         ]),

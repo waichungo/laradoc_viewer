@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors_in_immutables
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -24,7 +26,7 @@ class _SplashState extends State<Splash> {
   Future<void> init() async {
     await initAppState();
     setState(() {
-      this.meta = appState.meta;
+      meta = appState.meta;
     });
 
     await Future.delayed(const Duration(milliseconds: 500));
@@ -99,29 +101,3 @@ class _SplashState extends State<Splash> {
     );
   }
 }
-
-// class Splash extends StatelessWidget {
-
-//   Future<void> init()async{ 
-//       var start=DateTime.now();
-//       await initializeDB();
-//       var diff= DateTime.now().difference(start);
-//       if(diff.inMilliseconds<const Duration(seconds: 5).inMilliseconds){
-//         await Future.delayed(Duration(milliseconds: diff.inMilliseconds>1000?diff.inMilliseconds:1000));
-//       }
-//       Navigator.replace(context, oldRoute: oldRoute, newRoute: newRoute)
-
-//   }
-//   Splash({super.key}) {
-//     init();   
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Stack(
-//       children: [
-//         Expanded(child: SvgPicture())
-//       ],
-//     );
-//   }
-// }

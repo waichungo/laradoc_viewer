@@ -1,12 +1,48 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
+import 'package:laradoc_viewer/utils/utils.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-Database? ContentDB;
+Database? contentDB;
+Database? bookmarksDB;
+
+Future<List<Page>> getBookMarks() async {
+  List<Page> bookmarks = [];
+  var result = await bookmarksDB!.query('bookmarks');
+  bookmarks = result.map((e) => Page.fillPageWithResultEntry(e)).toList();
+  return bookmarks;
+}
+
+Future<bool> deleteBookmark(int id) async {
+  var result =
+      await bookmarksDB!.delete('bookmarks', where: "id = ?", whereArgs: [id]);
+  return result > 0;
+}
+
+Future<Page?> findBookmark(int id) async {
+  Page? page;
+  var result = await bookmarksDB!
+      .query('bookmarks', limit: 1, where: "id = ?", whereArgs: [id]);
+  if (result.isNotEmpty) {
+    page = Page.fillPageWithResultEntry(result[0]);
+  }
+  return page;
+}
+
+Future<bool> addBookmark(Page page) async {
+  Map<String, Object?> values = {
+    "id": page.id,
+    "name": page.name,
+    "link": page.link,
+    "parent": page.parentName
+  };
+  var result = await bookmarksDB!
+      .insert('bookmarks', values, conflictAlgorithm: ConflictAlgorithm.abort);
+  return result > 0;
+}
 
 class Page {
   int id = -1;
@@ -18,7 +54,7 @@ class Page {
   DateTime createdAt = DateTime.now();
   DateTime updatedAt = DateTime.now();
   static Future<Page?> findWithUrl(String url) async {
-    var result = await ContentDB!
+    var result = await contentDB!
         .query('contents', limit: 1, where: "link = ?", whereArgs: [url]);
     if (result.isNotEmpty) {
       return fillPageWithResultEntry(result[0]);
@@ -55,7 +91,7 @@ class Page {
 
   static Future<List<Page>> getPages() async {
     List<Page> pages = [];
-    var result = await ContentDB!.query('pages');
+    var result = await contentDB!.query('pages');
     if (result.isNotEmpty) {
       for (var entry in result) {
         pages.add(fillPageWithResultEntry(entry));
@@ -76,7 +112,7 @@ class Meta {
 
   static Future<Meta?> getMeta() async {
     Meta? meta;
-    var result = await ContentDB!.query('meta', limit: 1);
+    var result = await contentDB!.query('meta', limit: 1);
 
     if (result.isNotEmpty) {
       var entry = result[0];
@@ -150,13 +186,13 @@ class PageContent {
   }
 
   static Future<PageContent?> find(int id) async {
-    var result = await ContentDB!
+    var result = await contentDB!
         .query('contents', limit: 1, where: "id = ?", whereArgs: [id]);
     return loadResultSet(result);
   }
 
   static Future<PageContent?> findWithUrl(String url) async {
-    var result = await ContentDB!
+    var result = await contentDB!
         .query('contents', limit: 1, where: "link = ?", whereArgs: [url]);
     return loadResultSet(result);
   }
@@ -210,17 +246,27 @@ class ImageAsset {
 
   static Future<ImageAsset?> find(int id, bool loadData) async {
     ImageAsset? image;
-    var result = await ContentDB!
+    var result = await contentDB!
         .query('images', limit: 1, where: "id = ?", whereArgs: [id]);
     if (result.isNotEmpty) {
-      image = loadImage(result[0]);
+      image = loadImage(result[0], loadData: loadData);
     }
     return image;
   }
 
+  static Future<List<ImageAsset>> findWithQuery(
+      bool loadData, String query, List<Object?>? bindArgs) async {
+    var result =
+        await contentDB!.query('images', where: query, whereArgs: bindArgs);
+    if (result.isNotEmpty) {
+      return result.map((e) => loadImage(e, loadData: loadData)!).toList();
+    }
+    return [];
+  }
+
   static Future<List<ImageAsset>> getImages(bool loadData) async {
     List<ImageAsset> images = [];
-    var result = await ContentDB!.query('images');
+    var result = await contentDB!.query('images');
     if (result.isNotEmpty) {
       images = loadResultSet(result, loadData: loadData);
     }
@@ -228,24 +274,28 @@ class ImageAsset {
   }
 
   static Future<List<String>> getImageLinks() async {
-    var result = await ContentDB!.query('images');
+    var result = await contentDB!.query('images');
     List<String> links =
         loadResultSet(result, loadData: false).map((e) => e.url).toList();
     return links;
   }
 }
 
-Future<String> getDbFile() async {
-  var docDir = await getApplicationDocumentsDirectory();
-  String databasesPath = docDir.absolute.path;
-  String path = p.join(databasesPath, "db", 'data.db');
+Future<String> getDocDbFile() async {
+  String path = p.join(await getAppDirectory(), "db", 'data.db');
+  return path;
+}
+
+Future<String> getBookmarkDbFile() async {
+  String path = p.join(await getAppDirectory(), "db", 'bookmarks.db');
   return path;
 }
 
 Future<void> initializeDB() async {
-  if (ContentDB == null) {
+  if (contentDB == null) {
     sqfliteFfiInit();
-    var path = await getDbFile();
+    var path = await getDocDbFile();
+    var bookmarkDbPath = await getBookmarkDbFile();
     var dbFile = File(path);
     var source = await rootBundle.load("assets/data.db");
     if (!await dbFile.exists() ||
@@ -254,6 +304,21 @@ Future<void> initializeDB() async {
       dbFile = await dbFile.writeAsBytes(source.buffer.asInt8List());
     }
     databaseFactory = databaseFactoryFfi;
-    ContentDB = await databaseFactory.openDatabase(path);
+    contentDB = await databaseFactory.openDatabase(path);
+    bookmarksDB = await databaseFactory.openDatabase(bookmarkDbPath,
+        options: OpenDatabaseOptions(
+          version: 1,
+          onCreate: (db, version) async {
+            await db.execute(r'''
+            CREATE TABLE IF NOT EXISTS bookmarks (
+              id	INTEGER NOT NULL UNIQUE,
+              name	TEXT,
+              link	TEXT NOT NULL UNIQUE,
+              parent	TEXT,
+              PRIMARY KEY("id")
+            );
+            ''');
+          },
+        ));
   }
 }

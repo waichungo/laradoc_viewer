@@ -1,7 +1,6 @@
 // ignore_for_file: unused_import
 
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:laradoc_viewer/colors/colors.dart';
 import 'package:laradoc_viewer/db/db.dart';
 import 'package:laradoc_viewer/screens/home.dart';
@@ -29,7 +28,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: ContentDB == null ? Splash() : const Home(),
+      home: contentDB == null ? Splash() : const Home(),
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:laradoc_viewer/db/db.dart';
 import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as p;
@@ -8,19 +7,10 @@ import 'dart:convert';
 
 import 'package:path_provider/path_provider.dart';
 
-final appStateProvider =
-    NotifierProvider<AppStateNotifier, AppState>(AppStateNotifier.new);
-
-class AppStateNotifier extends Notifier<AppState> {
-  @override
-  AppState build() => AppState();
-}
-
 class AppState {
   Meta? meta;
   List<Page> pages = [];
   int selectedpage = 0;
-  bool isHomeDrawerOpen = false;
 }
 
 String generateHash(String input) {
@@ -61,7 +51,7 @@ List<Page> _getParents(List<Page> pages) {
 Future<String> getAppDirectory() async {
   var docDir = await getApplicationDocumentsDirectory();
   String baseDir = docDir.absolute.path;
-  String path = p.join(baseDir, "doc_viewer");
+  String path = p.join(baseDir, "lara_doc_viewer");
   var dir = Directory(path);
   if (!await dir.exists()) {
     dir.create(recursive: true);
@@ -70,7 +60,7 @@ Future<String> getAppDirectory() async {
 }
 
 Future<String> getImagesDirectory() async {
-  String path = p.join(await getAppDirectory(), "doc_viewer", "images");
+  String path = p.join(await getAppDirectory(), "images");
   return path;
 }
 
@@ -125,10 +115,13 @@ initAppState() async {
     for (var parent in parents) {
       parent.children =
           pages.where((element) => element.parentName == parent.name).toList();
-      if (parent.link.isNotEmpty) {
+      if (parent.link.isNotEmpty &&
+          !parent.children.map((e) => e.link).contains(parent.link)) {
         parent.children.insert(0, parent);
       }
     }
     appState.pages = parents;
   }
 }
+
+AppState appState = AppState();

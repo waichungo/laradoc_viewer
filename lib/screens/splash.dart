@@ -27,7 +27,7 @@ class _SplashState extends State<Splash> {
       this.meta = appState.meta;
     });
 
-    await Future.delayed(const Duration(seconds: 5));
+    await Future.delayed(const Duration(milliseconds: 500));
     Navigator.pushReplacement<void, void>(context, MaterialPageRoute<void>(
       builder: (context) {
         return const Home();

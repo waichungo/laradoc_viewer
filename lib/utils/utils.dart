@@ -7,6 +7,9 @@ import 'dart:convert';
 
 import 'package:path_provider/path_provider.dart';
 
+const String defaultAppTitle = "NextJS documentation";
+const String defaultAppBase = "nextjs_doc";
+
 class AppState {
   Meta? meta;
   List<Page> pages = [];
@@ -51,7 +54,7 @@ List<Page> _getParents(List<Page> pages) {
 Future<String> getAppDirectory() async {
   var docDir = await getApplicationDocumentsDirectory();
   String baseDir = docDir.absolute.path;
-  String path = p.join(baseDir, "lara_doc_viewer");
+  String path = p.join(baseDir, defaultAppBase);
   var dir = Directory(path);
   if (!await dir.exists()) {
     dir.create(recursive: true);

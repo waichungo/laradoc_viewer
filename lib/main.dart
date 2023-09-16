@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Laravel documentation',
+      title: 'NextJS documentation',
       theme: ThemeData(
         fontFamily: "Poppins",
         colorScheme: ColorScheme.fromSeed(

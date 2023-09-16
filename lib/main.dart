@@ -6,6 +6,8 @@ import 'package:laradoc_viewer/db/db.dart';
 import 'package:laradoc_viewer/screens/home.dart';
 import 'package:laradoc_viewer/screens/splash.dart';
 
+import 'utils/utils.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -19,7 +21,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'NextJS documentation',
+      title: defaultAppTitle,
       theme: ThemeData(
         fontFamily: "Poppins",
         colorScheme: ColorScheme.fromSeed(

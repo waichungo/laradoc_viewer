@@ -1,2 +1,2 @@
 # laradoc_viewer
-View laravel doementation offline
+View laravel documentation offline

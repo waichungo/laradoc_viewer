@@ -47,7 +47,8 @@ dependencies:
   url_launcher: ^6.1.14
   markdown_widget: 
     path: ./markdown_widget
-
+  ffi: ^2.1.4
+  win32: ^5.13.0
   
 
 dev_dependencies:

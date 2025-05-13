@@ -7,8 +7,8 @@ import 'dart:convert';
 
 import 'package:path_provider/path_provider.dart';
 
-const String defaultAppTitle = "NextJS documentation";
-const String defaultAppBase = "nextjs_doc";
+const String defaultAppTitle = "Django documentation";
+const String defaultAppBase = "django_doc";
 
 class AppState {
   Meta? meta;

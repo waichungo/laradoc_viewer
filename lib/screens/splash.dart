@@ -89,11 +89,28 @@ class _SplashState extends State<Splash> {
                   ),
                 )
               : Center(
-                  child: Container(
-                    width: 100,
-                    child: LinearProgressIndicator(
-                      color: AppColours.primary,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Loading",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColours.primaryDark,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 16,
+                      ),
+                      SizedBox(
+                        width: 100,
+                        child: LinearProgressIndicator(
+                          color: AppColours.primary,
+                        ),
+                      ),
+                    ],
                   ),
                 )
         ],

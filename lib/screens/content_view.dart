@@ -95,7 +95,7 @@ class _ContentViewState extends State<ContentView> {
                   ),
                 ),
               ),
-              Container(
+              const SizedBox(
                 width: 16,
               ),
               GestureDetector(
@@ -191,7 +191,7 @@ class _ContentViewState extends State<ContentView> {
       }
       var hashIdx = href.lastIndexOf("#");
       if (hashIdx > 0) {
-        href = href.substring(0, hashIdx - 1);
+        href = href.substring(0, hashIdx);
       }
       if (widget.contentPage.link == href) {
         return;

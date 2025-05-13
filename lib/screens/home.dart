@@ -188,7 +188,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                             ? AppColours.dark
                             : AppColours.lightTone,
                       ),
-                      Container(
+                      const SizedBox(
                         width: 16,
                       ),
                       IntrinsicWidth(
